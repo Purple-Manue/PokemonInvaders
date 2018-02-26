@@ -1,0 +1,349 @@
+ <!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="css/style.css" />
+	<script type="text/javascript" src="js/script.js"></script>
+	<!--<script type="text/javascript" src="js/script2.js"></script>-->
+</head>
+
+<body>
+
+	<div id="screen">
+        <div id="lost" style="display:none";>
+            <span class="bouton">Game Over</span>
+            <img src="img/pikafusee.png" />
+            <div class="bouton" type="bouton"><a href="javascript:window.location.reload()">Restart</a></div>
+        </div>
+        <div id="win" style="display:none";>
+            <span class="bouton">You Win!</span>
+            <img src="img/pikafusee.png" />
+            <div class="bouton" type="bouton" onclick="run()"><a href="javascript:window.location.reload()">Nextstage</a></div>
+        </div>
+        <div id="theEnd" style="display:none";>
+            <img src="img/pikafusee.png" />
+            <span id="go">THE END</span>
+            <img src="img/sacha.png" />
+        </div>
+    </div>
+
+	<span>SCORE : </span>
+	<span id ="score">0</span>
+	<span id = "bienvenue"></span>
+	<span id="niveau">
+        <span>LEVEL : </span>
+        <span id="stage">1</span>
+    </span>
+
+	<script>
+
+		var myAudio = new Audio('sons/battle.mp3');
+		myAudio.addEventListener('ended', function() {
+		    this.currentTime = 0;
+		    this.play();
+		}, false);
+		myAudio.play(); 
+
+		var poke1 = new Sprite("img/pika.png", 100, 50);
+		var poke2 = new Sprite("img/pika.png", 300, 50);
+		var poke3 = new Sprite("img/pika.png", 500, 50);
+		var poke4 = new Sprite("img/pika.png", 700, 50);
+		var poke5 = new Sprite("img/pika.png", 900, 50);
+
+		var poke6 = new Sprite("img/kwak.png", 200, 150); 
+		var poke7 = new Sprite("img/kwak.png", 400, 150);
+		var poke8 = new Sprite("img/kwak.png", 600, 150);
+		var poke9 = new Sprite("img/kwak.png", 800, 150);
+		var poke10 = new Sprite("img/kwak.png", 1000, 150);
+
+		var pokeSize = 60;
+
+		poke1.width = pokeSize;
+		poke2.width = pokeSize;
+		poke3.width = pokeSize;
+		poke4.width = pokeSize;
+		poke5.width = pokeSize;
+		poke6.width = pokeSize;
+		poke7.width = pokeSize;
+		poke8.width = pokeSize;
+		poke9.width = pokeSize;
+		poke10.width = pokeSize;
+
+		var pokeBonus= new Sprite("img/rondoudou.png", document.body.clientWidth, 0);
+			pokeBonus.width= pokeSize;
+			pokeBonus.height= pokeSize;
+			pokeBonus.display = "none";
+
+		var fill_ball = new Sprite("img/full_ball.png", 0, 0);
+		fill_ball.width = 50;
+		fill_ball.display = "none";
+		
+		var ball = [];
+		for (var i = 0; i < 100; i++) {
+			ball[i] = new Sprite("img/ball.png", 0, 0);
+			ball[i].display = 'none';
+		}
+		var munition = 0;
+
+		ball.display = "none";
+		
+		var cpt = 10;
+		var point = 0;
+		var unluck = true;
+		var monCookie;
+
+		var ash = new Sprite("img/ash.png", 0, 500);
+		ash.left = (document.body.clientWidth - ash._node.width)/2;
+		ash.width = 80;
+
+		var win = false;
+		var level;
+		if(getCookie('level2') == ""){
+			level = 20;
+		}else{
+			document.getElementById("stage").textContent = "2";
+			level = 5;
+		}
+	
+
+		function run(){
+			setCookie('level2', 2, dtExpire);
+        }
+
+		monCookie = document.cookie; // on crée notre cookie 
+        var dtExpire = new Date();
+   		dtExpire.setTime(dtExpire.getTime() + 3600 * 1000); // date expiration du cookie une heure 
+   		checkCookie();
+   		//checkRefresh();
+		
+		document.onkeydown = function(event) {
+
+			console.log(event.keyCode);
+			if (event.keyCode == 37 & win == false & unluck == false){
+				ash.left -= 10;
+				console.log(document.body.clientHeight);
+			}else if (event.keyCode == 39 & win == false & unluck == false ){
+				ash.left  += 10;
+			}else if (event.keyCode == 32 & unluck == false & win == false & munition < 100) {
+				new Audio('sons/ball.mp3').play();
+				ball[munition].display = 'block';
+				ball[munition].left = ash.left + (ash._node.width - ball[munition]._node.width)/2;
+				ball[munition].top = ash.top;
+				ball[munition].startAnimation(throwBall, 20);
+				munition++;
+			}else if (event.keyCode == 13 & unluck == true){
+				unluck = false;
+				for (var i=1; i<=10 ; i++) {
+					window["poke"+i].startAnimation(movePokeToRight, level);
+					pokeBonus.startAnimation(bonusLeft);
+				}
+			}else if (event.keyCode == 80 & unluck == false) {
+				for (var i=1; i<=10 ; i++) {
+					window["poke"+i].stopAnimation();
+				}
+				unluck = true;
+			}
+
+			if (ash.left < 0) ash.left = 0;
+			if (ash.left > document.body.clientWidth - ash._node.width ) ash.left = document.body.clientWidth - ash._node.width;
+			if (ash.top <  0) ash.top = 0;
+		};
+
+		window.onresize = function(){
+			if (ash.left < 0) {
+				ash.left = 0;
+			}
+			if (ash.left > document.body.clientWidth - ash._node.width ) {
+				ash.left = document.body.clientWidth - ash._node.width;
+			}
+			if (ash.top > document.body.clientHeight - ash._node.height ) {
+				//console.log(document.body.clientHeight);
+			}
+		};
+		function animBonus(){
+			pokeBonus.startAnimation(moveBonus, 20);
+			/*console.log('anim');
+			console.log(pokeBonus.left);*/
+			if (win == true){
+				pokeBonus.stopAnimation();
+				}
+		}
+		
+		function moveBonus(){	
+			if (pokeBonus.left<=0){
+				pokeBonus.stopAnimation(animBonus);
+				bonusLeft();
+				
+			}
+			pokeBonus.display="block";
+			//console.log('aniiiiim');
+			pokeBonus.left -=5;
+			//console.log(pokeBonus.left);
+			
+		}
+		
+		function bonusLeft(){
+			pokeBonus.left = document.body.clientWidth;
+			setTimeout(animBonus, 2000);
+			//console.log(pokeBonus.left);
+			
+		}
+		
+		function scoring(){
+			fill_ball.display="none";
+			//console.log('hey');
+			
+		}
+		function displayBall(){
+			fill_ball.display="block";
+			setTimeout(scoring, 500);
+		}
+
+		function throwBall(bal) {
+			
+			bal.top -= 10;
+			if (bal.top < -40){
+				bal.stopAnimation();
+				bal.display = "none";
+			}
+
+			for (var i=1; i<=10 ; i++) {
+				var poke = window["poke"+i];
+				if (poke.display == "none") continue;
+				if (bal.checkCollision(poke)) {
+					bal.stopAnimation();
+					bal.display = "none";
+					poke.stopAnimation();
+					poke.display = "none";
+					if (i <= 5) {
+						new Audio('sons/pika.mp3').play();
+					}else if (i >= 6){
+						new Audio('sons/psyko.mp3').play();
+					}
+					cpt--;
+					point += 10;
+					document.getElementById("score").textContent = point;
+					setCookie('index', point, dtExpire);
+					console.log(getCookie('index'));
+					if (cpt == 0){
+						for (var i=1; i<=10 ; i++) {
+							window["poke"+i].stopAnimation();
+							pokeBonus.stopAnimation(animBonus);
+						}
+						win = true;
+						myAudio.pause();
+						if(getCookie('level2') == ""){
+							popupWin();
+						}else{
+							popuptheEnd();
+							ash.display = 'none';
+						}
+						
+					}
+					fill_ball.left = poke.left + (poke._node.width /2);
+					fill_ball.top = poke.top ;
+					displayBall();
+				}
+			}
+			if(bal.checkCollision(pokeBonus)){
+					bal.stopAnimation();
+					bal.display="none";
+					pokeBonus.display="none";
+					displayBall();
+					fill_ball.left = pokeBonus.left;
+					fill_ball.top = pokeBonus.top ;
+					pokeBonus.stopAnimation(animBonus);
+					bonusLeft();
+					new Audio('sons/rondoudou.mp3').play();
+					point +=50;
+					document.getElementById("score").textContent = point;
+					setCookie('index', point, dtExpire);
+					console.log(getCookie('index'));
+					}
+
+		}
+
+		function movePokeToLeft(poke) {
+			poke.left -= 5;
+
+			if (poke.left <= 0) {
+				poke.top += 50;
+				poke.startAnimation(movePokeToRight, level);
+			}
+            if (ash.checkCollision(poke)) {
+               //console.log("coucou");
+                poke.stopAnimation();
+                pokeBonus.stopAnimation(animBonus);
+                for (var i=1; i<=10 ; i++) {
+					window["poke"+i].stopAnimation();
+				}
+				win = true;
+				myAudio.pause();
+                popupLost();
+            }
+        }
+
+		function movePokeToRight(poke) {
+			poke.left += 5;
+
+			if (poke.left > document.body.clientWidth - poke._node.width ) {
+				poke.top += 50;
+				poke.startAnimation(movePokeToLeft, level);
+			}
+			
+            if (ash.checkCollision(poke)) {
+               // console.log("coucou");
+                poke.stopAnimation();
+                pokeBonus.stopAnimation(animBonus);
+                for (var i=1; i<=10 ; i++) {
+					window["poke"+i].stopAnimation();
+				}
+				win = true;
+				myAudio.pause();
+                popupLost();
+            }
+        }
+
+        function setCookie(cname, cvalue, exdays){ // cette fonction stock le nom du visiteiur dans la variable cookie 
+        	var date = new Date();
+        	date.setTime(date.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        	var expires = "expires="+date.toUTCString();
+    		document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+		}
+
+		function getCookie(cname) { // cette fonction renvoie la valeur d'un cookie spécifique 
+		    var name = cname + "=";
+		    var ca = document.cookie.split(';');
+		    for(var i = 0; i < ca.length; i++) {
+		        var c = ca[i];
+		        while (c.charAt(0) == ' ') {
+		            c = c.substring(1);
+		        }
+		        if (c.indexOf(name) == 0) {
+		            return c.substring(name.length, c.length);
+		        }
+    		}
+    		return "";
+		}
+
+		function checkCookie() {
+		    var user = getCookie("username");
+		    if (user != "") {
+		        //alert("Welcome again " + user); 
+		        document.getElementById("bienvenue").textContent = "\n Welcome again " + user;
+		    } else {
+		        user = prompt("Please enter your name:", "");
+		        if (user != "" && user != null) {
+		        	document.getElementById("bienvenue").textContent = "\n Welcome " + user;
+		            setCookie("username", user, 365);
+		        }
+		    }
+		}
+
+	</script>
+</body>
+
+</html>
+

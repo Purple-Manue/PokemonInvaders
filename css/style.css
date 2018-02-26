@@ -1,0 +1,93 @@
+@font-face {
+	font-family: pokemon;
+	src : url(../pokemon/pokemon_solid.ttf);
+}
+
+
+body {
+	position: relative;
+	background-image: url(../img/fond.jpg);
+	left: 0;
+	top: 0;
+	min-width: 1024px;
+	height: 100%;
+	background-size: cover;
+	overflow: hidden;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+}
+
+span{
+	font-size: 20px;
+	/*font-weight: bold;*/
+	color : yellow;
+	font-family: pokemon;
+}
+
+#screen {
+  text-align: center;
+}
+
+#time{
+	font-size: 50px;
+}
+
+#lost{
+   position: fixed;
+   top:0; right:0; bottom:0; left:0;
+   background-color: rgba(0, 0, 0, 0.5);
+   z-index: 1000;
+}
+
+#lost:target{
+   display: block;
+}
+
+#win{
+   position: fixed;
+   top:0; right:0; bottom:0; left:0;
+   background-color: rgba(0, 0, 0, 0.5);
+   z-index: 1000;
+}
+#theEnd{
+   position: fixed;
+   top:0; right:0; bottom:0; left:0;
+   background-color: rgba(0, 0, 0, 0.5);
+   z-index: 1000;
+}
+
+#win:target{
+   display: block;
+}
+
+#theEnd:target{
+   display: block;
+}
+
+#go {
+    font-family: pokemon;
+    font-size: 100px;
+    text-transform: uppercase;
+    margin:auto;
+}
+
+#niveau {
+    position: absolute;
+    right: 0px;
+}
+
+#bienvenue
+{
+	color: red;
+	padding-left: 90px;
+}
+
+.bouton {
+  display:block;
+    font-family: pokemon;
+    font-size: 75px;
+    text-transform: uppercase;
+    margin:auto;
+}
+
